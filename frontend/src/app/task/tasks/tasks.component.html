@@ -1,0 +1,136 @@
+<h2>Task Management</h2>
+
+<button style="margin-right: 16px;" type="button" class="btn btn-primary float-right"
+  (click)="logout()">
+  log out
+</button>
+
+
+<!-- Add Task Form -->
+<button style="margin-right: 16px;" type="button" class="btn btn-primary float-right"
+  data-toggle="modal" data-target="#addtaskModal">
+  Add task
+</button>
+<div class="modal fade" id="addtaskModal" tabindex="-1" role="dialog"
+  aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form [formGroup]="taskForm" (ngSubmit)="addTask()" class="task-form">
+          <label for="title">Title:</label>
+          <input id="title" formControlName="title" />
+          <div *ngIf="taskForm.controls['title'].invalid && taskForm.controls['title'].touched"
+            class="error">
+            Title is required.
+          </div>
+
+          <label for="description">Description:</label>
+          <input id="description" formControlName="description" />
+          <button type="submit" [disabled]="taskForm.invalid">Add</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+<!-- Filter Tasks -->
+<div class="filter">
+  <label for="filter">Filter by Status:</label>
+  <select class="custom-select w-25" id="filter" [(ngModel)]="filterStatus"
+    (change)="filterTasks()">
+    <option value="">All</option>
+    <option value="pending">Pending</option>
+    <option value="completed">Completed</option>
+  </select>
+</div>
+
+<!-- Tasks Table -->
+<table class="tasks-table">
+  <thead>
+    <tr>
+      <th>Title</th>
+      <th>Description</th>
+      <th>Status</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+
+    <tr *ngFor="let task of filteredTasks">
+      <td>{{ task.title }}</td>
+      <td>{{ task.description }}</td>
+      <td>
+        <span [class.pending]="task.status === 'pending'"
+          [class.completed]="task.status === 'completed'">
+          {{ task.status }}
+        </span>
+      </td>
+      <td>
+
+
+        <button type="button" class="edit-btn" data-toggle="modal" data-target="#editTaskModal"
+          (click)="openEditModal(task)">
+          Edit
+        </button>
+        <button (click)="deleteTask(task._id)" class="delete-btn">Delete</button>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<div *ngIf="filteredTasks.length == 0" style="text-align: center;"> No task Found </div>
+
+
+
+
+<!-- Edit Task Modal -->
+
+<div class="modal fade" id="editTaskModal" tabindex="-1" role="dialog"
+  aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form [formGroup]="taskForm" (ngSubmit)="updateTask()">
+          <div class="mb-3">
+            <label for="title" class="form-label">Title</label>
+            <input id="title" formControlName="title" type="text" class="form-control" />
+            <div *ngIf="taskForm.controls['title'].invalid && taskForm.controls['title'].touched"
+              class="text-danger">
+              Title is required.
+            </div>
+          </div>
+          <div class="mb-3">
+            <label for="description" class="form-label">Description</label>
+            <input id="description" formControlName="description" type="text"
+              class="form-control" />
+          </div>
+          <div class="mb-3">
+            <label for="status" class="form-label">Status</label>
+
+            <select class="custom-select" id="status" formControlName="status">
+              <option value="pending">Pending</option>
+              <option value="completed">Completed</option>
+            </select>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary" (click)="updateTask()">Save changes</button>
+      </div>
+    </div>
+  </div>
+</div>
