@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { ApiService } from 'src/app/services/api.service';
@@ -8,7 +8,7 @@ import { ApiService } from 'src/app/services/api.service';
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.scss']
 })
-export class LoginComponent {
+export class LoginComponent implements OnInit {
   loginForm: FormGroup;
 
   constructor(private fb: FormBuilder, private http: ApiService, private router: Router,) {
@@ -18,11 +18,16 @@ export class LoginComponent {
     });
   }
 
+  ngOnInit(): void {
+    if (JSON.parse(localStorage.getItem('Users'))) {
+      this.router.navigate(['/tasks'])
+    }
+  }
+
   onSubmit() {
     if (this.loginForm.valid) {
       this.http.post('/auth/login', this.loginForm.value).subscribe(
         (response) => {
-          console.log('login successful', response);
           localStorage.setItem('Users', JSON.stringify(response['user']))
           localStorage.setItem('token', JSON.stringify(response['token']))
           this.router.navigate(['/tasks'])

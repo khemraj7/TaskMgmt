@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { ApiService } from 'src/app/services/api.service';
@@ -8,7 +8,7 @@ import { ApiService } from 'src/app/services/api.service';
   templateUrl: './register.component.html',
   styleUrls: ['./register.component.scss']
 })
-export class RegisterComponent {
+export class RegisterComponent implements OnInit {
   registerForm: FormGroup;
 
   constructor(private fb: FormBuilder, private http: ApiService, private router: Router,) {
@@ -19,11 +19,16 @@ export class RegisterComponent {
     });
   }
 
+  ngOnInit(): void {
+    if (JSON.parse(localStorage.getItem('Users'))) {
+      this.router.navigate(['/tasks'])
+    }
+  }
+
   onSubmit() {
     if (this.registerForm.valid) {
       this.http.post('/auth/register', this.registerForm.value).subscribe(
         (response) => {
-          console.log('Registration successful', response);
           localStorage.setItem('Users', JSON.stringify(response['user']))
           localStorage.setItem('token', JSON.stringify(response['token']))
           this.router.navigate(['/tasks'])

@@ -1,8 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { ApiService } from 'src/app/services/api.service';
-
+declare var $: any;
 @Component({
   selector: 'app-tasks',
   templateUrl: './tasks.component.html',
@@ -15,6 +15,7 @@ export class TasksComponent implements OnInit {
   filterStatus = '';
   isModalOpen = false;
   currentTaskId: any;
+  @ViewChild('editTaskModal') modalClose;
 
 
   constructor(private fb: FormBuilder, private http: ApiService, private router: Router) {
@@ -47,6 +48,7 @@ export class TasksComponent implements OnInit {
         this.tasks.push(newTask);
         this.filterTasks();
         this.taskForm.reset();
+        this.closeModal('addtaskModal')
       });
     }
   }
@@ -56,14 +58,10 @@ export class TasksComponent implements OnInit {
       const updatedTask = {
         ...this.taskForm.value,
       };
-
       this.http.patch(`/tasks/${this.currentTaskId}`, updatedTask).subscribe((response) => {
-        this.tasks = this.tasks.map((task) =>
-          task._id === this.currentTaskId ? updatedTask : task
-        );
-
+        this.loadTasks()
+        this.closeModal('editTaskModal')
         this.filterTasks();
-        this.closeModal();
       });
 
 
@@ -83,7 +81,6 @@ export class TasksComponent implements OnInit {
       : this.tasks;
   }
   openEditModal(task: any) {
-    this.isModalOpen = true;
     this.currentTaskId = task._id
     this.taskForm.setValue({
       title: task.title,
@@ -92,8 +89,8 @@ export class TasksComponent implements OnInit {
     });
   }
 
-  closeModal() {
-    this.isModalOpen = false;
+  closeModal(modal) {
+    $(`#${modal}`).modal('hide');
   }
 
   logout() {
